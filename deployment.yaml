@@ -1,7 +1,20 @@
-  GNU nano 8.3                     deployment.yaml                              
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
       containers:
       - name: flask-app
-        image: <your-dockerhub-username>/flask-app:latest
+        image: harish2b/flask-docker-k8s:latest   # ✅ Correct image name
         ports:
         - containerPort: 5000
 ---
@@ -17,4 +30,3 @@ spec:
       port: 80
       targetPort: 5000
   type: LoadBalancer
-
