@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // replace with your DockerHub username
-                    withDockerRegistry([ credentialsId: 'dockerhub-cred', url: '' ]) {
+                    withDockerRegistry([ credentialsId: 'harishbalaji2404@outlook.com', url: '' ]) {
                         sh 'docker tag flask-docker-k8s:latest <your-dockerhub-username>/flask-docker-k8s:latest'
                         sh 'docker push <your-dockerhub-username>/flask-docker-k8s:latest'
                     }
