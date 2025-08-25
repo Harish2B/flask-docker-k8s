@@ -1,17 +1,4 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: flask-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: flask-app
-  template:
-    metadata:
-      labels:
-        app: flask-app
-    spec:
+  GNU nano 8.3                     deployment.yaml                              
       containers:
       - name: flask-app
         image: <your-dockerhub-username>/flask-app:latest
