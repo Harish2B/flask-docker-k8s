@@ -14,9 +14,11 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: harish2b/flask-docker-k8s:latest   # ✅ Correct image name
+        image: harish2b/flask-docker-k8s:latest
         ports:
         - containerPort: 5000
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service
