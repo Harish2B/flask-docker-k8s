@@ -12,7 +12,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t harish2b/flask-docker-k8s:latest .'
+                    sh 'docker build -t harish2b/flask-docker-k8s .'
                 }
             }
         }
@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
-                        sh 'docker push harish2b/flask-docker-k8s:latest'
+                        sh 'docker push harish2b/flask-docker-k8s'
                     }
                 }
             }
