@@ -32,6 +32,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh 'kubectl apply -f deployment.yaml'
                     sh 'kubectl get pods'
+                    sh 'minikube service flask-service --url'
                 }
             }
         }
