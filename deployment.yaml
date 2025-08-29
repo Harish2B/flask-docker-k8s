@@ -15,6 +15,7 @@ spec:
       containers:
       - name: flask-app
         image: harish2b/flask-docker-k8s:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
       imagePullSecrets:
