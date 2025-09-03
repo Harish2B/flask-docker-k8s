@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "harish2b/flask-docker-k8s"
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -9,10 +13,25 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarcube') {   // Jenkins SonarQube server name
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=sonarqube-check \
+                          -Dsonar.projectName="sonarqube check" \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=$SONAR_HOST_URL \
+                          -Dsonar.login=$SONAR_AUTH_TOKEN
+                    '''
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t harish2b/flask-docker-k8s .'
+                    sh "docker build -t ${DOCKER_IMAGE}:latest ."
                 }
             }
         }
@@ -21,7 +40,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
-                        sh 'docker push harish2b/flask-docker-k8s'
+                        sh "docker push ${DOCKER_IMAGE}:latest"
                     }
                 }
             }
@@ -32,7 +51,17 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh 'kubectl apply -f deployment.yaml'
                     sh 'kubectl get pods'
-                    sh 'minikube service flask-service --url'
+                }
+            }
+        }
+
+        stage('Access Service') {
+            steps {
+                script {
+                    // Get minikube IP and NodePort for direct URL
+                    def minikubeIp = sh(script: "minikube ip", returnStdout: true).trim()
+                    def nodePort = sh(script: "kubectl get svc flask-service -o=jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
+                    echo "Your app is running at: http://${minikubeIp}:${nodePort}"
                 }
             }
         }
