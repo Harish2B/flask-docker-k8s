@@ -15,15 +15,19 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarcube') {   // Jenkins SonarQube server name
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=sonarqube-check \
-                          -Dsonar.projectName="sonarqube check" \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_AUTH_TOKEN
-                    '''
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('sonarcube') {
+                        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
+                            sh """
+                                ${scannerHome}/bin/sonar-scanner \
+                                  -Dsonar.projectKey=sonarqube-check \
+                                  -Dsonar.projectName='sonarqube check' \
+                                  -Dsonar.sources=. \
+                                  -Dsonar.login=$SONAR_AUTH_TOKEN
+                            """
+                        }
+                    }
                 }
             }
         }
@@ -61,7 +65,7 @@ pipeline {
                     // Get minikube IP and NodePort for direct URL
                     def minikubeIp = sh(script: "minikube ip", returnStdout: true).trim()
                     def nodePort = sh(script: "kubectl get svc flask-service -o=jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
-                    echo "Your app is running at: http://${minikubeIp}:${nodePort}"
+                    echo "✅ Your app is running at: http://${minikubeIp}:${nodePort}"
                 }
             }
         }
